@@ -8,14 +8,14 @@ open class Log {
     private var oslog: AnyObject?
     private var privateDebug = false
     
-    init() {
+    public init() {
         if #available(OSX 10.12, *) {
             oslog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "App")
         }
     }
     
     @available(OSX 10.12, *)
-    convenience init(subSystem: String = Bundle.main.bundleIdentifier!, category: String = "App") {
+    public convenience init(subSystem: String = Bundle.main.bundleIdentifier!, category: String = "App") {
         self.init()
         oslog = OSLog(subsystem: subSystem, category: category)
     }
