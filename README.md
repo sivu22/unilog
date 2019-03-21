@@ -5,7 +5,7 @@ Swift unified logging made simple.
 - Simplifies the Apple unified logging system
 - Ready to be use without the need to set anything up
 - Swift like formating, no need for a `NSString` or `printf` format string
-- Fallbacks automatically to NSLog if running on `El Capitan` (10.11) or early
+- Fallbacks automatically to `NSLog` if running on `El Capitan` (10.11) or early
 - Can be customized to log in debug mode just like in release mode
 - All parameters are public by default, the way information should be in a log; parameters can be redacted individually
 - Private data will remain private and cannot be shown at all, even when flipping the `private_data` flag on
