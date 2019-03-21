@@ -13,7 +13,7 @@ Swift unified logging made simple.
 
 ## Instalation
 Init a Swift package and add the unilog dependency:
-`.package(url: "https://github.com/sivu22/unilog.git", from: "1.0.0")`
+`.package(url: "https://github.com/sivu22/unilog.git", from: "1.0.1")`
 
 Add the Swift package to your workspace, click to add Embedded Binaries and select `unilog.framework`.
 
