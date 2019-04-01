@@ -1,4 +1,7 @@
 # unilog
+
+![Swift](https://img.shields.io/badge/Swift-5.0-brightgreen.svg)
+
 Swift unified logging made simple.
 
 ## Features
@@ -9,7 +12,7 @@ Swift unified logging made simple.
 - Can be customized to log in debug mode just like in release mode
 - All parameters are public by default, the way information should be in a log; parameters can be redacted individually
 - Private data will remain private and cannot be shown at all, even when flipping the `private_data` flag on
-- Simple and small codebase, under 200 LOC
+- Simple and small codebase, under 150 LOC
 
 ## Instalation
 Init a Swift package and add the unilog dependency:
@@ -32,7 +35,7 @@ Sensitive data can be redacted by using the `.mPrivate` access modifier. This ac
 ```swift
 Log.message("User \(username) with password \(password, modifier: .mPrivate) successfully logged in.")
 ```
-By default, the `.mPublic` modifier is used, meaning the above line is identical to:
+If not specified, the `.mPublic` modifier is used, meaning the above line is identical to:
 ```swift
 Log.message("User \(username, modifier: .mPublic) with password \(password, modifier: .mPrivate) successfully logged in.")
 ```
