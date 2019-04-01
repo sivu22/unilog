@@ -6,7 +6,6 @@ open class Log {
     private static var logger = Log()
     
     private var oslog: AnyObject?
-    private var privateDebug = false
     
     public init() {
         if #available(OSX 10.12, *) {
@@ -31,78 +30,13 @@ open class Log {
         }
     }
     
-    public func allowPrivateInDebugMode(_ allow: Bool) {
-        privateDebug = allow
-    }
-    
-    private func parse(_ msg: String) -> String {
-        guard !msg.isEmpty else {
-            return ""
-        }
-        
-        if msg.count < 4 || !msg.contains("{<}") {
-            return msg
-        }
-        
-        let failedMsg = "<Unsupported characters found, message will not be logged>"
-        
-        var startIndexes: [String.Index] = [], stopIndexes: [String.Index] = []
-        for i in 0..<msg.count - 2 {
-            let start = msg.index(msg.startIndex, offsetBy: i)
-            if msg[start] != "{" {
-                continue
-            }
-            
-            let stop = msg.index(msg.startIndex, offsetBy: i + 2)
-            let token = msg[start...stop]
-            if token == "{<}" {
-                startIndexes.append(start)
-            } else if token == "{>}" {
-                stopIndexes.append(start)
-            }
-        }
-        
-        if startIndexes.count != stopIndexes.count {
-            return failedMsg
-        }
-        
-        if startIndexes.count == 0 {
-            return msg
-        }
-        
-        for i in 0..<startIndexes.count {
-            if startIndexes[i] > stopIndexes[i] {
-                return failedMsg
-            }
-        }
-        
-        var redactedMsg = msg
-        var redacted = "<redacted>"
-        #if DEBUG
-        if !privateDebug {
-            redacted = ""
-        }
-        #endif
-        
-        if !redacted.isEmpty {
-            for i in stride(from: startIndexes.count - 1, through: 0, by: -1) {
-                redactedMsg = redactedMsg.replacingCharacters(in: startIndexes[i]..<stopIndexes[i], with: redacted)
-            }
-        }
-        
-        redactedMsg = redactedMsg.replacingOccurrences(of: "{<}", with: "")
-        redactedMsg = redactedMsg.replacingOccurrences(of: "{>}", with: "")
-        
-        return redactedMsg
-    }
-    
     @available(OSX 10.12, *)
     private func log(_ msg: String, type: OSLogType) {
-        os_log("%s", log: oslog as! OSLog, type: type, parse(msg))
+        os_log("%s", log: oslog as! OSLog, type: type, msg)
     }
     
     private func log(_ msg: String, type: String) {
-        NSLog("[%@] %@", type, parse(msg))
+        NSLog("[%@] %@", type, msg)
     }
     
     public func debug(_ msg: String) {
@@ -144,10 +78,6 @@ open class Log {
         logger.setCategory(to: cat, forSubsystem: subsystem)
     }
     
-    public static func allowPrivateInDebugMode(_ allow: Bool) {
-        logger.allowPrivateInDebugMode(allow)
-    }
-    
     public static func debug(_ msg: String) {
         logger.debug(msg)
     }
@@ -162,5 +92,41 @@ open class Log {
     
     public static func error(_ msg: String) {
         logger.error(msg)
+    }
+}
+
+extension String.StringInterpolation {
+    
+    public enum Modifier {
+        case mPrivate
+        case mPrivateRelease
+        case mPublic
+    }
+    
+    public mutating func appendInterpolation(_ value: Any?, modifier: String.StringInterpolation.Modifier = .mPublic) {
+        switch modifier {
+        case .mPrivate:
+            if value != nil {
+                appendLiteral("<redacted>")
+            } else {
+                appendLiteral("nil")
+            }
+        case .mPrivateRelease:
+            if value != nil {
+                #if DEBUG
+                appendInterpolation(value)
+                #else
+                appendLiteral("<redacted>")
+                #endif
+            } else {
+                appendLiteral("nil")
+            }
+        case .mPublic:
+            if let value = value {
+                appendInterpolation(value)
+            } else {
+                appendLiteral("nil")
+            }
+        }
     }
 }
