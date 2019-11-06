@@ -32,7 +32,7 @@ open class Log {
     
     @available(OSX 10.12, *)
     private func log(_ msg: String, type: OSLogType) {
-        os_log("%s", log: oslog as! OSLog, type: type, msg)
+        os_log("%{public}s", log: oslog as! OSLog, type: type, msg)
     }
     
     private func log(_ msg: String, type: String) {
